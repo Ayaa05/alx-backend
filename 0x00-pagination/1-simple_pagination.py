@@ -1,8 +1,29 @@
-##!/usr/bin/env python3
-"""this module for task 1"""
+#!/usr/bin/env python3
+"""
+Defines class Server that paginates a database of popular baby names
+"""
 import csv
 import math
 from typing import List, Tuple
+
+
+def index_range(page: int, page_size: int) -> Tuple[int, int]:
+    """
+    Takes 2 integer arguments and returns a tuple of size two
+    containing the start and end index corresponding to the range of
+    indexes to return in a list for those pagination parameters
+    Args:
+        page (int): page number to return (pages are 1-indexed)
+        page_size (int): number of items per page
+    Return:
+        tuple(start_index, end_index)
+    """
+    start, end = 0, 0
+    for i in range(page):
+        start = end
+        end += page_size
+
+    return (start, end)
 
 
 class Server:
@@ -24,36 +45,22 @@ class Server:
 
         return self.__dataset
 
-    @staticmethod
-    def index_range(page: int, page_size: int) -> Tuple[int, int]:
-        """
-        Calculate the start and end indexes for pagination.
-        Args:
-            page <int>: the current page number (1-indexed).
-            page_size <int>: The number of items per page.
-        return:
-            <Tuple[int, int]> of size two containing
-                start index and an end index
-        """
-        return (
-            (page - 1) * page_size,
-            ((page - 1) * page_size) + page_size
-            )
-
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
         """
-        get page using simple pagination.
-
+        Takes 2 integer arguments and returns requested page from the dataset
         Args:
-            page <int> 1 as default: the current page number (1-indexed).
-            page_size <int> 10 as default: The number of items per page.
-
-        return:
-            <list[list]> list data in list
+            page (int): required page number. must be a positive integer
+            page_size (int): number of records per page. must be a +ve integer
+        Return:
+            list of lists containing required data from the dataset
         """
-        assert isinstance(page, int) and isinstance(page_size, int)
-        assert page > 0 and page_size > 0
+        assert type(page) is int and page > 0
+        assert type(page_size) is int and page_size > 0
 
-        data = self.dataset()
-        start, end = Server.index_range(page, page_size)
-        return [] if start > len(data) else data[start:end]
+        dataset = self.dataset()
+        data_length = len(dataset)
+        try:
+            index = index_range(page, page_size)
+            return dataset[index[0]:index[1]]
+        except IndexError:
+            return []
